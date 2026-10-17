@@ -1,0 +1,142 @@
+# Cấu hình mặc định của tseda.
+# Mọi ngưỡng đều nằm ở đây; người dùng ghi đè bằng file YAML riêng.
+
+general:
+  seed: 42
+  alpha: 0.05
+  min_n_for_tests: 30          # dưới ngưỡng này chỉ mô tả, không kiểm định
+  max_n_for_tests: 200000      # vượt ngưỡng thì kiểm định trên mẫu phân tầng
+  dayfirst: true               # dd/mm/yyyy là mặc định (dữ liệu Việt Nam)
+  today: null                  # ghim ngày "hôm nay" khi kiểm thử, null = ngày hệ thống
+  domain: null                 # banking | finance | retail | null
+  time_column: null            # ghi đè việc tự chọn cột thời gian
+  entity_column: null          # ghi đè việc tự chọn cột thực thể (mã CK, tài khoản, chi nhánh...)
+  stages: [typing, quality, profile, relate, capability, transform, viz]
+
+missing:
+  sentinel_strings: ["", "na", "n/a", "null", "none", "nan", "-", "--", "?", "chưa có", "chua co", "không rõ", "khong ro"]
+  sentinel_numbers: [-1, -999, -9999, 9999, 99999, 999999]
+  stale_run_min_length: 10     # chuỗi giá trị giống hệt nhau liên tiếp dài hơn ngưỡng này bị gắn cờ
+  high_null_share: 0.5
+
+typing:
+  sample_size: 5000
+  min_confidence: 0.6
+  parse_threshold: 0.9         # tỷ lệ parse tối thiểu để coi một cột là số/ngày/cấu trúc
+  id_unique_ratio: 0.95
+  boolean_pairs:
+    - ["y", "n"]
+    - ["yes", "no"]
+    - ["true", "false"]
+    - ["1", "0"]
+    - ["có", "không"]
+    - ["co", "khong"]
+    - ["đạt", "không đạt"]
+  date_formats:
+    - "%Y-%m-%d"
+    - "%Y-%m-%d %H:%M:%S"
+    - "%Y-%m-%dT%H:%M:%S"
+    - "%d/%m/%Y"
+    - "%d/%m/%Y %H:%M:%S"
+    - "%d/%m/%Y %H:%M"
+    - "%d-%m-%Y"
+    - "%d.%m.%Y"
+    - "%m/%d/%Y"
+    - "%m/%d/%Y %H:%M:%S"
+    - "%Y/%m/%d"
+    - "%d/%m/%y"
+    - "%Y%m%d"
+  name_hints:                  # chỉ là tín hiệu phụ, không đủ để quyết định một mình
+    id: ["id", "ma_", "_ma", "code", "key", "so_hd", "stt", "ma"]
+    datetime: ["ngay", "date", "time", "thoi_gian", "thang", "nam", "year", "month", "dt"]
+    numeric: ["so_tien", "amount", "gia", "price", "tien", "ty_le", "rate", "luong", "volume", "du_no", "sl", "qty"]
+
+numeric:
+  locale: auto                 # auto | vi | en
+  default_locale: vi           # dùng khi không phân biệt được "1.234"
+  suffix_map:                  # hậu tố đơn vị thường gặp trong số liệu nhập tay
+    "tỷ": 1000000000
+    "ty": 1000000000
+    "triệu": 1000000
+    "trieu": 1000000
+    "tr": 1000000
+    "k": 1000
+  currency_tokens: ["vnđ", "vnd", "đồng", "đ", "$", "usd"]
+  count_max_unique_ratio: 0.3
+  low_card_integer_max: 12     # số nguyên có ít giá trị hơn ngưỡng này được xem là phân loại
+  skew_robust: 1.0             # |skew| lớn hơn ngưỡng thì dùng median/MAD
+  zero_inflation_share: 0.5
+  outlier_iqr_k: 3.0
+  robust_z_threshold: 3.5
+  mode_prominence: 0.15
+  round_multiple: 1000
+  round_multiple_share: 0.95
+
+categorical:
+  high_cardinality_ratio: 0.5
+  rare_level_min_share: 0.001
+  rare_level_min_count: 5
+  variant_similarity: 0.9
+  max_variant_keys: 300
+  ordinal_lexicons:
+    - ["rất thấp", "thấp", "trung bình", "cao", "rất cao"]
+    - ["thấp", "trung bình", "cao"]
+    - ["nhỏ", "vừa", "lớn"]
+    - ["very low", "low", "medium", "high", "very high"]
+    - ["low", "medium", "high"]
+    - ["small", "medium", "large"]
+
+text:
+  free_text_min_mean_tokens: 4
+  short_text_max_mean_len: 40
+  structured_match_threshold: 0.8
+
+relate:
+  fdr_alpha: 0.05
+  max_pairs: 300
+  strong_effect: 0.3
+  moderate_effect: 0.1
+  vif_threshold: 10
+  cramers_min_expected: 5
+  sparse_cell_share: 0.2
+
+temporal:
+  min_rows: 30
+  calendar: business           # business | calendar  (lịch giao dịch mặc định)
+  holidays: []                 # ngày nghỉ (YYYY-MM-DD) không tính là thiếu dữ liệu, ví dụ Tết, 30/4, 2/9
+  seasonal_lags: [5, 7, 12, 24, 52, 252]
+  seasonal_min_strength: 0.3
+  break_min_segment: 20
+  break_p_threshold: 0.001
+  stationarity_min_n: 30
+  max_lag: 60
+
+panel:
+  min_entities: 2
+  short_history_min: 10
+
+hierarchy:
+  max_cardinality: 5000
+  violation_tolerance: 0.05
+
+constraints:
+  critical_share: 0.01
+  custom: []
+
+transform:
+  winsor_quantiles: [0.01, 0.99]
+  auto_accept_safe: false
+
+report:
+  max_columns_detail: 200
+  max_plots: 40
+
+dashboard:
+  max_rows: 3000            # số dòng nhúng vào dashboard để lọc tương tác (lấy mẫu có seed nếu bảng lớn hơn)
+  max_columns: 60           # số cột tối đa đưa vào dashboard
+  max_levels: 30            # cột phân loại có tối đa này level mới có bộ lọc chọn
+  max_text_chars: 120       # cắt chuỗi dài khi nhúng
+  series_max: 6             # số đường tối đa khi tách theo thực thể, phần còn lại gộp "Khác"
+  histogram_bins: 30
+  heatmap_max_columns: 12
+  table_preview_rows: 200

@@ -1,0 +1,52 @@
+# Ví dụ file cấu hình ghi đè. Chỉ cần khai báo khóa muốn đổi, phần còn lại lấy từ mặc định.
+# Chạy: tseda profile data.csv --config configs/example.yaml --out out/eda
+
+general:
+  domain: banking                 # banking | finance | retail | null
+  dayfirst: true                  # dd/mm/yyyy
+  entity_column: ma_ck            # khai báo thủ công cột thực thể nếu tự chọn chưa đúng
+  time_column: ngay_gd            # khai báo thủ công cột thời gian
+  stages: [typing, quality, profile, relate, capability, transform, viz]
+
+numeric:
+  locale: auto                    # hoặc vi / en nếu biết chắc nguồn
+  default_locale: vi
+  suffix_map:
+    "tỷ": 1000000000
+    "tr": 1000000
+    "k": 1000
+
+missing:
+  sentinel_strings: ["", "na", "n/a", "null", "-", "chưa có", "không rõ", "đang xử lý"]
+  stale_run_min_length: 5         # đóng băng: 5 kỳ liên tiếp giống nhau đã đáng nghi (mặc định 10)
+
+categorical:
+  variant_similarity: 0.92        # nâng ngưỡng để giảm gộp nhầm các tên gần giống
+
+temporal:
+  calendar: business
+  holidays:                       # ngày nghỉ không tính là thiếu dữ liệu
+    - "2023-01-23"
+    - "2023-01-24"
+    - "2023-01-25"
+    - "2023-01-26"
+    - "2023-01-27"
+    - "2023-04-29"
+    - "2023-04-30"
+    - "2023-05-01"
+    - "2023-09-01"
+    - "2023-09-04"
+
+constraints:
+  critical_share: 0.01
+  custom:
+    - {type: range, column: ty_le_no_xau, min: 0, max: 100, name: "tỷ lệ nợ xấu trong [0, 100]"}
+    - {type: nonnegative, column: du_no, name: "dư nợ không âm"}
+    - {type: unique, columns: [ma_giao_dich], name: "mã giao dịch là khóa"}
+    - {type: order, lower: gia_thap, upper: gia_cao, name: "giá thấp <= giá cao"}
+
+transform:
+  auto_accept_safe: false         # true: tự chấp nhận các bước an toàn (parse chắc chắn, chuỗi sentinel)
+
+report:
+  max_plots: 30

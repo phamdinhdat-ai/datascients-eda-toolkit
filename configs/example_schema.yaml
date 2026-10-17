@@ -1,0 +1,11 @@
+# Khai báo vai trò thủ công: ghi đè suy luận cho các cột này (confidence = 1.0, nguồn = schema).
+# Vai trò hợp lệ: empty, constant, boolean, id, datetime, numeric_continuous, numeric_count,
+# numeric_stored_as_text, categorical_nominal, categorical_ordinal, text_short, text_free,
+# structured_text, mixed
+# Chạy: tseda profile data.csv --schema configs/example_schema.yaml
+
+so_tien: numeric_stored_as_text     # đã biết là số, phần chữ sẽ thành NA khi parse
+chi_nhanh: categorical_nominal
+muc_rui_ro: categorical_ordinal
+ma_giao_dich: id
+co_no_xau: boolean

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>__TITLE__</title>
+<style>
+__CSS__
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <h1 id="title">Dashboard dữ liệu</h1>
+    <p class="muted" id="subtitle"></p>
+  </div>
+  <button type="button" id="theme-toggle" class="ghost" aria-label="Đổi giao diện sáng/tối">Đổi giao diện</button>
+</header>
+
+<section class="kpis" id="kpis" aria-label="Chỉ số tóm tắt"></section>
+
+<section class="filters" aria-label="Bộ lọc">
+  <div class="filter-row" id="filter-row"></div>
+  <div class="filter-meta">
+    <span id="filter-count" aria-live="polite"></span>
+    <button type="button" id="filter-reset" class="ghost">Xóa bộ lọc</button>
+  </div>
+</section>
+
+<nav class="tabs" role="tablist" aria-label="Các phần của dashboard">
+  <button type="button" role="tab" id="tab-overview" aria-controls="panel-overview" aria-selected="true" data-tab="overview">Tổng quan</button>
+  <button type="button" role="tab" id="tab-columns" aria-controls="panel-columns" aria-selected="false" tabindex="-1" data-tab="columns">Biến</button>
+  <button type="button" role="tab" id="tab-relations" aria-controls="panel-relations" aria-selected="false" tabindex="-1" data-tab="relations">Quan hệ</button>
+  <button type="button" role="tab" id="tab-time" aria-controls="panel-time" aria-selected="false" tabindex="-1" data-tab="time">Thời gian</button>
+  <button type="button" role="tab" id="tab-findings" aria-controls="panel-findings" aria-selected="false" tabindex="-1" data-tab="findings">Phát hiện</button>
+  <button type="button" role="tab" id="tab-data" aria-controls="panel-data" aria-selected="false" tabindex="-1" data-tab="data">Bảng dữ liệu</button>
+</nav>
+
+<main>
+  <section id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" class="panel">
+    <div class="grid-2">
+      <article class="card">
+        <h2>Tỷ lệ thiếu theo cột</h2>
+        <p class="muted small">Tính trên toàn bộ bảng, không đổi theo bộ lọc.</p>
+        <div id="chart-missing" class="chart"></div>
+        <details class="table-twin"><summary>Xem dạng bảng</summary><div class="table-wrap" id="table-missing"></div></details>
+      </article>
+      <article class="card">
+        <h2>Số cột theo loại</h2>
+        <p class="muted small">Loại được suy ra từ dữ liệu, không từ tên cột.</p>
+        <div id="chart-kinds" class="chart"></div>
+        <details class="table-twin"><summary>Xem dạng bảng</summary><div class="table-wrap" id="table-kinds"></div></details>
+      </article>
+    </div>
+    <h2>Tổng quan từng cột</h2>
+    <p class="muted small">Nhấn một ô để mở chi tiết cột đó. Biểu đồ nhỏ phản ánh bộ lọc hiện tại.</p>
+    <div class="mini-grid" id="mini-grid"></div>
+  </section>
+
+  <section id="panel-columns" role="tabpanel" aria-labelledby="tab-columns" class="panel" hidden>
+    <div class="toolbar">
+      <label>Cột <select id="col-select"></select></label>
+    </div>
+    <article class="card">
+      <h2 id="col-title"></h2>
+      <p class="muted small" id="col-note"></p>
+      <dl class="stats" id="col-stats"></dl>
+      <div id="chart-column" class="chart"></div>
+      <details class="table-twin"><summary>Xem dạng bảng</summary><div class="table-wrap" id="table-column"></div></details>
+    </article>
+  </section>
+
+  <section id="panel-relations" role="tabpanel" aria-labelledby="tab-relations" class="panel" hidden>
+    <article class="card">
+      <h2>Tương quan Spearman giữa các cột số</h2>
+      <p class="muted small">Tính trên dữ liệu đang lọc. Xanh: cùng chiều. Đỏ: ngược chiều. Xám: gần 0.</p>
+      <div id="chart-heatmap" class="chart"></div>
+      <details class="table-twin"><summary>Xem dạng bảng</summary><div class="table-wrap" id="table-heatmap"></div></details>
+    </article>
+    <article class="card">
+      <h2>Kiểm định cặp cột (trên toàn bộ dữ liệu đã phân tích)</h2>
+      <p class="muted small">Đã hiệu chỉnh Benjamini-Hochberg. Cột "Có ý nghĩa" là q &lt; ngưỡng cấu hình.</p>
+      <div class="table-wrap" id="table-relations"></div>
+    </article>
+  </section>
+
+  <section id="panel-time" role="tabpanel" aria-labelledby="tab-time" class="panel" hidden>
+    <div class="toolbar" id="time-toolbar"></div>
+    <article class="card">
+      <h2 id="time-title">Chuỗi thời gian</h2>
+      <p class="muted small" id="time-note"></p>
+      <div id="chart-time" class="chart"></div>
+      <details class="table-twin"><summary>Xem dạng bảng</summary><div class="table-wrap" id="table-time"></div></details>
+    </article>
+    <article class="card" id="time-facts-card" hidden>
+      <h2>Phát hiện về cấu trúc thời gian</h2>
+      <div class="table-wrap" id="time-facts"></div>
+    </article>
+  </section>
+
+  <section id="panel-findings" role="tabpanel" aria-labelledby="tab-findings" class="panel" hidden>
+    <div class="toolbar" id="sev-toolbar" role="group" aria-label="Lọc theo mức độ"></div>
+    <article class="card">
+      <div class="table-wrap" id="table-findings"></div>
+    </article>
+  </section>
+
+  <section id="panel-data" role="tabpanel" aria-labelledby="tab-data" class="panel" hidden>
+    <div class="toolbar">
+      <button type="button" id="csv-download">Tải CSV (đã lọc)</button>
+      <span class="muted small" id="data-note"></span>
+    </div>
+    <article class="card">
+      <div class="table-wrap" id="table-data"></div>
+    </article>
+  </section>
+</main>
+
+<div id="tip" class="tip" role="tooltip" hidden></div>
+
+<script type="application/json" id="tseda-data">__DATA__</script>
+<script>
+__JS__
+</script>
+</body>
+</html>

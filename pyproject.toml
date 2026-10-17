@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tseda"
+version = "0.1.0"
+description = "Adaptive EDA for tabular data (numeric, categorical, text, datetime, time series, panel) with role inference, transform plans and HTML reports."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "matplotlib>=3.7",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+stats = ["statsmodels>=0.14"]          # ADF/KPSS, ACF nâng cao
+sql = ["sqlalchemy>=2.0"]
+parquet = ["pyarrow>=12"]
+excel = ["openpyxl>=3.1"]
+dev = ["pytest>=7"]
+all = ["tseda[stats,sql,parquet,excel,dev]"]
+
+[project.scripts]
+tseda = "tseda.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["tseda*"]
+
+[tool.setuptools.package-data]
+"tseda.core" = ["default_config.yaml"]
+"tseda.dashboard" = ["assets/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
